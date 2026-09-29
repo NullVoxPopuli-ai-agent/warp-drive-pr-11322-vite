@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    name: "Vite dev server and production build"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: No WarpDrive package depends on @embroider/macros
+        run: pnpm check:install
+      - name: Who depends on @embroider/macros
+        run: pnpm why @embroider/macros --depth 0
+      - name: Tests in Chrome (dev server and production build)
+        run: pnpm test
